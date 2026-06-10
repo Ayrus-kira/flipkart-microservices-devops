@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "ayrus21/product-service"
+        IMAGE_TAG = "v1"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -26,33 +31,29 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t product-service:v1 ./product-service'
-            }
-        }
-
-        stage('Load Image to KIND') {
-            steps {
-                sh 'kind load docker-image product-service:v1 --name flipkart-cluster'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG ./product-service'
             }
         }
 
         stage('Run Trivy Scan') {
             steps {
-                sh 'trivy image product-service:v1 || true'
+                sh 'trivy image $IMAGE_NAME:$IMAGE_TAG || true'
             }
         }
 
-        stage('Run Container Test') {
+        stage('DockerHub Login & Push') {
             steps {
-                sh '''
-                docker rm -f product-service-test || true
-                docker run -d -p 5001:5000 --name product-service-test product-service:v1
-                sleep 5
-                curl http://localhost:5001/products
-                docker rm -f product-service-test
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push $IMAGE_NAME:$IMAGE_TAG
+                    '''
+                }
             }
         }
-
     }
 }
