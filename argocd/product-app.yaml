@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Ayrus-kira/flipkart-microservices-devops.git
     targetRevision: main
-    path: k8s
+    path: helm/product-service
   destination:
     server: https://kubernetes.default.svc
     namespace: flipkart

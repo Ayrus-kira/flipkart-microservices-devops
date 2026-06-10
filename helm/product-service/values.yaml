@@ -1,0 +1,15 @@
+app:
+  name: product-service
+  namespace: flipkart
+
+replicaCount: 3
+
+image:
+  repository: ayrus21/product-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 5000
+  targetPort: 5000
