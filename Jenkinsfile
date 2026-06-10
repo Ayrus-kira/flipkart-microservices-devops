@@ -9,6 +9,23 @@ pipeline {
             }
         }
 
+        // ADD HERE ↓↓↓
+
+        stage('SonarQube Code Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=flipkart-product-service \
+                      -Dsonar.projectName=flipkart-product-service \
+                      -Dsonar.sources=product-service
+                    '''
+                }
+            }
+        }
+
+        // ABOVE Docker build ↑↑↑
+
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t product-service:v1 ./product-service'
