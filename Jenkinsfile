@@ -1,12 +1,7 @@
 pipeline {
     agent any
 
-    tools {
-        sonarScanner 'SonarScanner'
-    }
-
     stages {
-
         stage('Checkout') {
             steps {
                 echo 'Code checkout completed'
@@ -15,13 +10,16 @@ pipeline {
 
         stage('SonarQube Code Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                    sonar-scanner \
-                      -Dsonar.projectKey=flipkart-product-service \
-                      -Dsonar.projectName=flipkart-product-service \
-                      -Dsonar.sources=product-service
-                    '''
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                          -Dsonar.projectKey=flipkart-product-service \
+                          -Dsonar.projectName=flipkart-product-service \
+                          -Dsonar.sources=product-service
+                        """
+                    }
                 }
             }
         }
