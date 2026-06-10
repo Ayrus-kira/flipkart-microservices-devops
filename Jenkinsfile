@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo 'Code checkout completed'
@@ -11,6 +12,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t product-service:v1 ./product-service'
+            }
+        }
+
+        stage('Load Image to KIND') {
+            steps {
+                sh 'kind load docker-image product-service:v1 --name flipkart-cluster'
             }
         }
 
@@ -24,10 +31,31 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f product-service-test || true
-                docker run -d -p 5001:5000 --name product-service-test product-service:v1
+
+                docker run -d -p 5001:5000 \
+                --name product-service-test \
+                product-service:v1
+
                 sleep 5
+
                 curl http://localhost:5001/products
+
                 docker rm -f product-service-test
+                '''
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f k8s/'
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                kubectl get pods -n flipkart
+                kubectl get svc -n flipkart
                 '''
             }
         }
