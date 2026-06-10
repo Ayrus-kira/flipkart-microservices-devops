@@ -54,19 +54,5 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl apply -f k8s/'
-            }
-        }
-
-        stage('Verify Deployment') {
-            steps {
-                sh '''
-                kubectl get pods -n flipkart
-                kubectl get svc -n flipkart
-                '''
-            }
-        }
     }
 }
