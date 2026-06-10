@@ -20,6 +20,6 @@ spec:
       containers:
       - name: product-service
         image: ayrus21/product-service:v1
-
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
