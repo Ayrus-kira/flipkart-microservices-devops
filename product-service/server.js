@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => {
-    res.send('Product Service Running');
+    res.send('Product Service Running - ArgoCD GitOps Demo');
 });
 
 app.get('/products', (req, res) => {
