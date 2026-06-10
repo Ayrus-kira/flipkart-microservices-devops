@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        sonarScanner 'SonarScanner'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -8,8 +12,6 @@ pipeline {
                 echo 'Code checkout completed'
             }
         }
-
-        // ADD HERE ↓↓↓
 
         stage('SonarQube Code Analysis') {
             steps {
@@ -23,8 +25,6 @@ pipeline {
                 }
             }
         }
-
-        // ABOVE Docker build ↑↑↑
 
         stage('Build Docker Image') {
             steps {
@@ -48,15 +48,9 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f product-service-test || true
-
-                docker run -d -p 5001:5000 \
-                --name product-service-test \
-                product-service:v1
-
+                docker run -d -p 5001:5000 --name product-service-test product-service:v1
                 sleep 5
-
                 curl http://localhost:5001/products
-
                 docker rm -f product-service-test
                 '''
             }
